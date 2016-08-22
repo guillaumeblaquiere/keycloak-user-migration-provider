@@ -15,12 +15,14 @@ public class User implements Serializable
     private String email;
     private String firstName;
     private String lastName;
-    private String title;
+    private String username;
     private String password;
     private String salt;
     private boolean emailVerified;
     private boolean enabled;
     private Set<String> roles;
+
+    private Map<String,List<String>> attributes;
 
     public User()
     {
@@ -56,14 +58,14 @@ public class User implements Serializable
         this.lastName = lastName;
     }
 
-    public String getTitle()
+    public String getUsername()
     {
-        return title;
+        return username;
     }
 
-    public void setTitle(String title)
+    public void setUsername(String username)
     {
-        this.title = title;
+        this.username = username;
     }
 
     public String getPassword()
@@ -114,5 +116,13 @@ public class User implements Serializable
     public void setRoles(Set<String> roles)
     {
         this.roles = roles;
+    }
+
+    public Map<String, List<String>> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, List<String>> attributes) {
+        this.attributes = attributes;
     }
 }

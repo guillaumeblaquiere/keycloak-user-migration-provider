@@ -53,7 +53,7 @@ public class FederatedUserConverter implements Converter<User,FederatedUserModel
         model.setEmailVerified(source.isEmailVerified());
 
         // map other data to attributes
-        attributes.put("title", Collections.singletonList(source.getTitle()));
+        attributes.put("title", Collections.singletonList(source.getUsername()));
 
         // map roles
         model.setRoles(source.getRoles());
