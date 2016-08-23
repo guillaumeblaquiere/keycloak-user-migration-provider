@@ -93,16 +93,17 @@ public class LegacyUserService implements FederatedUserService {
     @Override
     public FederatedUserModel getUserDetails(String username) {
         loadConnexion();
-        User user = null;
+        FederatedUserModel user = null;
         try {
             String sql = "select EMAIL,NAME from pzuser where login = '" + username + "'";
             ResultSet rs = connection.createStatement().executeQuery(sql);
+            user = new FederatedUserModel();
 
             if (rs.next()) {
                 user.setUsername(rs.getString("EMAIL"));
                 user.setEmail(rs.getString("EMAIL"));
                 user.setEnabled(true);
-                user.setFirstName(rs.getString("Name"));
+                user.setFirstName(rs.getString("NAME"));
                 //user.setLastName();
                 Set<String> role = new HashSet<>();
                 role.add("accessFusion");

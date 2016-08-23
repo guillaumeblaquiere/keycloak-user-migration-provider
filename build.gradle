@@ -51,7 +51,7 @@ modules {
         resources = ["user-migration-federation-provider-${version}.jar", "user-model-${version}.jar"]
         dependencies = [
                 [name: 'org.keycloak.keycloak-core'],
-                [name: 'org.keycloak.keycloak-model-api'],
+                [name: 'org.keycloak.keycloak-server-spi'],
                 [name: 'org.jboss.resteasy.resteasy-jaxrs'],
                 [name: 'org.jboss.logging'],
                 [name: 'org.apache.httpcomponents'],

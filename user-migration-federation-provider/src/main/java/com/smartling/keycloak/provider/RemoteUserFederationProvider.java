@@ -23,15 +23,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.keycloak.models.CredentialValidationOutput;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserFederationProvider;
-import org.keycloak.models.UserFederationProviderModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
@@ -100,14 +92,14 @@ public class RemoteUserFederationProvider implements UserFederationProvider {
         LOG.infof("Creating user model for: %s", username);
         UserModel userModel = session.userStorage().addUser(realm, username);
 
-        if (!username.equals(remoteUser.getEmail())) {
+        /*if (!username.equals(remoteUser.getEmail())) {
             throw new IllegalStateException(String.format("Local and remote users differ: [%s != %s]", username, remoteUser.getUsername()));
         }
-
+*/
         userModel.setFederationLink(model.getId());
-        userModel.setEnabled(remoteUser.isEnabled());
-        userModel.setEmail(username);
-        userModel.setEmailVerified(remoteUser.isEmailVerified());
+        userModel.setEnabled(true);
+        userModel.setEmail(remoteUser.getEmail());
+        userModel.setEmailVerified(true);
         userModel.setFirstName(remoteUser.getFirstName());
         userModel.setLastName(remoteUser.getLastName());
 
@@ -124,6 +116,21 @@ public class RemoteUserFederationProvider implements UserFederationProvider {
                     userModel.grantRole(roleModel);
                     LOG.infof("Granted user %s, role %s", username, role);
                 }
+                for(ClientModel client : realm.getClients()){
+                    roleModel = client.getRole(role);
+                    if (roleModel != null) {
+                        userModel.grantRole(roleModel);
+                        LOG.infof("Granted user %s, role %s for client %s", username, role,client.getName());
+                    }
+                }
+            }
+        }
+
+        //Set to group
+        for (GroupModel group : realm.getGroups()){
+            if (group.getName().equals("migration")){
+                userModel.getGroups().add(group);
+                LOG.infof("Add user %s to group %s", username, group.getName());
             }
         }
 
