@@ -1,2 +1,17 @@
 server:
   port: 9081
+
+database:
+  login: HR
+  password: HR126
+  host: 10.1.2.114
+  port: 1521
+  schema: hrs
+
+fusion:
+  #role to add in client for Fusion in Keycloak
+  role: accessFusion
+  #Attribut for fusionLogin compliance
+  attribut: fusionLogin
+  #client name for Fusion in Keycloak
+  client: fusion

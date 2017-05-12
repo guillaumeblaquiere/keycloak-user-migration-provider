@@ -15,16 +15,13 @@
  */
 package com.acme.legacy.app.service;
 
-import com.acme.legacy.app.entity.User;
-import com.acme.legacy.app.manager.UserManager;
 import com.smartling.keycloak.federation.FederatedUserModel;
 import com.smartling.keycloak.federation.FederatedUserService;
 import com.smartling.keycloak.federation.UserCredentialsDto;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Consumes;
@@ -49,11 +46,21 @@ import java.util.*;
 public class LegacyUserService implements FederatedUserService {
     private static final Logger LOG = LoggerFactory.getLogger(LegacyUserService.class);
 
-    @Autowired
-    private ConversionService conversionService;
+    @Value("${database.login}")
+    private String login;
+    @Value("${database.password}")
+    private String password;
+    @Value("${database.host}")
+    private String host;
+    @Value("${database.port}")
+    private String port;
+    @Value("${database.schema}")
+    private String schema;
 
-    @Autowired
-    private UserManager userManager;
+    @Value("${fusion.role}")
+    private String roleFusionName;
+    @Value("${fusion.attribut}")
+    private String attributFusionName;
 
     private Connection connection;
 
@@ -78,8 +85,8 @@ public class LegacyUserService implements FederatedUserService {
         try {
             if (connection == null || connection.isClosed())
                 connection = DriverManager.getConnection(
-                        "jdbc:oracle:thin:@10.1.2.215:1521:fusion", "HR",
-                        "HR126");
+                        "jdbc:oracle:thin:@" + this.host + ":" + this.port + ":" + this.schema, this.login,
+                        this.password);
 
         } catch (SQLException e) {
 
@@ -100,22 +107,23 @@ public class LegacyUserService implements FederatedUserService {
             user = new FederatedUserModel();
 
             if (rs.next()) {
-                user.setUsername(rs.getString("EMAIL"));
+                user.setUsername(username);
                 user.setEmail(rs.getString("EMAIL"));
                 user.setEnabled(true);
                 user.setFirstName(rs.getString("NAME"));
                 //user.setLastName();
                 Set<String> role = new HashSet<>();
-                role.add("accessFusion");
+                role.add(this.roleFusionName);
                 user.setRoles(role);
+
                 Map<String,List<String>> attributes = new HashMap<>();
-                attributes.put("fusionLogin", Arrays.asList(username));
+                attributes.put(this.attributFusionName, Arrays.asList(username));
                 user.setAttributes(attributes);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return conversionService.convert(user, FederatedUserModel.class);
+        return user;
     }
 
     @Override
@@ -166,5 +174,34 @@ public class LegacyUserService implements FederatedUserService {
 
         return Response.status(status).entity("").build();
     }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public void setRoleFusionName(String roleFusionName) {
+        this.roleFusionName = roleFusionName;
+    }
+
+    public void setAttributFusionName(String attributFusionName) {
+        this.attributFusionName = attributFusionName;
+    }
+
 }
 
